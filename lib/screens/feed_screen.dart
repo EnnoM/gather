@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import '../state/activity_state.dart';
+import '../widgets/activity_map_preview.dart';
+import '../widgets/custom_drawer.dart';
+import 'activity_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({Key? key}) : super(key: key);
@@ -10,86 +13,97 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
-  bool isListView = true; // Zustand für die Ansicht (Liste oder Karte)
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isListView = true;
 
-  // Beispiel-Aktivitäten mit Geokoordinaten
-  final List<Map<String, dynamic>> activities = [
-    {
-      "name": "Wandern im Park",
-      "latitude": 48.1351,
-      "longitude": 11.5820,
-    }, // München
-    {
-      "name": "Kaffeetrinken",
-      "latitude": 52.5200,
-      "longitude": 13.4050,
-    }, // Berlin
-    {"name": "Kinoabend", "latitude": 50.9375, "longitude": 6.9603}, // Köln
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Aktivitäten beim Start laden
+    Provider.of<ActivityState>(context, listen: false).loadActivities();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final activities = Provider.of<ActivityState>(context).activities;
+
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text(
           '2 G A T H E R',
           style: TextStyle(
-            color: Color(0xFFE07A5F), // Farbe: E07A5F
-            fontFamily: 'Barlow', // Schriftart: Barlow
-            fontWeight: FontWeight.bold, // Fett
+            color: Color(0xFF81B29A),
+            fontFamily: 'Barlow',
+            fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.transparent, // Transparenter Hintergrund
-        elevation: 0, // Keine Schatten
-        centerTitle: true, // Titel zentrieren
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu),
+            color: Color(0xFF81B29A),
+            onPressed: () {
+              _scaffoldKey.currentState?.openEndDrawer();
+            },
+          ),
+        ],
       ),
+      endDrawer: const CustomDrawer(),
       body: Column(
         children: [
-          // Menüleiste unter der Überschrift
+          // Menüleiste
           Container(
-            height: kToolbarHeight, // Höhe wie die Überschrift
+            height: kToolbarHeight,
+            margin: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ), // Gleiche horizontale Abstände wie die Aktivitäten
             child: Row(
               children: [
-                // Linker Bereich: Liste
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        isListView = true; // Zur Listenansicht wechseln
+                        isListView = true;
                       });
                     },
                     child: Container(
-                      color:
-                          isListView
-                              ? const Color(0xFFE07A5F) // Aktive Farbe
-                              : Colors.transparent, // Inaktive Farbe
-                      child: const Center(
-                        child: Text(
-                          '📋', // Emoji für Liste
-                          style: TextStyle(fontSize: 24),
+                      decoration: BoxDecoration(
+                        color:
+                            isListView
+                                ? const Color(0xFF81B29A)
+                                : Colors.transparent,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(16), // Alle Ecken abrunden
                         ),
+                      ),
+                      child: const Center(
+                        child: Text('📋', style: TextStyle(fontSize: 24)),
                       ),
                     ),
                   ),
                 ),
-                // Rechter Bereich: Karte
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        isListView = false; // Zur Kartenansicht wechseln
+                        isListView = false;
                       });
                     },
                     child: Container(
-                      color:
-                          !isListView
-                              ? const Color(0xFFE07A5F) // Aktive Farbe
-                              : Colors.transparent, // Inaktive Farbe
-                      child: const Center(
-                        child: Text(
-                          '🌍', // Emoji für Karte
-                          style: TextStyle(fontSize: 24),
+                      decoration: BoxDecoration(
+                        color:
+                            !isListView
+                                ? const Color(0xFF81B29A)
+                                : Colors.transparent,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(16), // Alle Ecken abrunden
                         ),
+                      ),
+                      child: const Center(
+                        child: Text('🌍', style: TextStyle(fontSize: 24)),
                       ),
                     ),
                   ),
@@ -105,51 +119,72 @@ class _FeedScreenState extends State<FeedScreen> {
                       itemCount: activities.length,
                       itemBuilder: (context, index) {
                         final activity = activities[index];
-                        return ListTile(
-                          title: Text(activity["name"]),
-                          subtitle: Text(
-                            "Lat: ${activity["latitude"]}, Lon: ${activity["longitude"]}",
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16, // Abstand links und rechts
+                            vertical: 8, // Abstand oben und unten
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF81B29A),
+                            borderRadius: BorderRadius.circular(
+                              16,
+                            ), // Alle Ecken abrunden
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              activity.title,
+                              style: const TextStyle(
+                                color: Color(0xFF3D405B), // Schriftfarbe
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "Lat: ${activity.location?.latitude ?? 'N/A'}, Lon: ${activity.location?.longitude ?? 'N/A'}",
+                              style: const TextStyle(
+                                color: Color(0xFF3D405B), // Schriftfarbe
+                              ),
+                            ),
+                            onTap: () {
+                              // Navigation zum ActivityScreen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          ActivityScreen(activity: activity),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
                     )
-                    : FlutterMap(
-                      options: MapOptions(
-                        center: LatLng(
-                          51.1657,
-                          10.4515,
-                        ), // Zentrum: Deutschland
-                        zoom: 5.0,
+                    : Container(
+                      margin: const EdgeInsets.all(16), // Abstand um die Karte
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Hintergrundfarbe der Karte
+                        borderRadius: BorderRadius.circular(
+                          16,
+                        ), // Alle Ecken abrunden
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4), // Schatten
+                          ),
+                        ],
                       ),
-                      children: [
-                        TileLayer(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        MarkerLayer(
-                          markers:
-                              activities.map((activity) {
-                                return Marker(
-                                  point: LatLng(
-                                    activity["latitude"],
-                                    activity["longitude"],
-                                  ),
-                                  builder:
-                                      (ctx) => const Icon(
-                                        Icons.location_pin,
-                                        color: Colors.red,
-                                        size: 30,
-                                      ),
-                                );
-                              }).toList(),
-                        ),
-                      ],
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          16,
+                        ), // Ecken der Karte abrunden
+                        child: ActivityMapPreview(activities: activities),
+                      ),
                     ),
           ),
         ],
       ),
-      backgroundColor: const Color(0xFFF4F1DE), // Hintergrundfarbe der App
+      backgroundColor: const Color(0xFF3D405B), // Hintergrundfarbe
     );
   }
 }
