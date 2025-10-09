@@ -5,7 +5,7 @@ import '../screens/about_screen.dart';
 import '../screens/settings_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
-  const CustomDrawer({Key? key}) : super(key: key);
+  const CustomDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {

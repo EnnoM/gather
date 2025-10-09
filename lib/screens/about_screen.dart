@@ -3,14 +3,14 @@ import '../widgets/custom_drawer.dart'; // Import des CustomDrawer-Widgets
 import 'feed_screen.dart'; // Import der FeedScreen
 
 class AboutScreen extends StatelessWidget {
-  const AboutScreen({Key? key}) : super(key: key);
+  const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      key: _scaffoldKey,
+      key: scaffoldKey,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -39,7 +39,7 @@ class AboutScreen extends StatelessWidget {
             icon: const Icon(Icons.menu),
             color: const Color(0xFF81B29A),
             onPressed: () {
-              _scaffoldKey.currentState?.openEndDrawer(); // Menü öffnen
+              scaffoldKey.currentState?.openEndDrawer(); // Menü öffnen
             },
           ),
         ],
