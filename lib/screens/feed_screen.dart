@@ -4,9 +4,9 @@ import '../state/activity_state.dart';
 import '../state/user_state.dart';
 import '../widgets/activity_map_preview.dart';
 import '../widgets/custom_drawer.dart';
-import 'activity_screen.dart';
 import '../models/user.dart';
 import '../services/mock_firestore_service.dart';
+import '../widgets/activity_list_card.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -142,6 +142,78 @@ class _FeedScreenState extends State<FeedScreen> {
                     ],
                   ),
                 ),
+                // Grüne Bar mit mittigem Trennstrich
+                Container(
+                  height: 40, // Halb so hoch wie ein Listenelement
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16, // Gleicher Abstand wie die Listenelemente
+                    vertical: 8, // Gleicher Abstand oben und unten
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(
+                      0xFF81B29A,
+                    ), // Gleiche Farbe wie die Listenelemente
+                    borderRadius: BorderRadius.circular(
+                      16,
+                    ), // Abgerundete Ecken
+                  ),
+                  child: Row(
+                    children: [
+                      // Linke Hälfte: "X activities nearby"
+                      Expanded(
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      '${activities.length} ', // Anzahl der Aktivitäten
+                                  style: const TextStyle(
+                                    color: Color(
+                                      0xFFE07A5F,
+                                    ), // Farbe der Anzahl
+                                    fontWeight: FontWeight.bold, // Fett
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: 'activities nearby', // Text
+                                  style: TextStyle(
+                                    color: Color(0xFF3D405B), // Schriftfarbe
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Trennlinie
+                      Container(
+                        width: 2, // Dicke des Strichs
+                        color: const Color(0xFF3D405B), // Farbe des Strichs
+                      ),
+                      // Rechte Hälfte: Filter-Symbol
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            // Zukünftige Logik für Filtereinstellungen
+                            print("Filter icon tapped");
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.filter_alt, // Filter-Symbol
+                              color: Color(0xFF3D405B), // Symbolfarbe
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 // Hauptinhalt
                 Expanded(
                   child:
@@ -168,52 +240,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                 itemCount: activities.length,
                                 itemBuilder: (context, index) {
                                   final activity = activities[index];
-                                  return Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal:
-                                          16, // Gleicher Abstand links und rechts
-                                      vertical:
-                                          8, // Gleicher Abstand oben und unten
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF81B29A),
-                                      borderRadius: BorderRadius.circular(
-                                        16,
-                                      ), // Alle Ecken abrunden
-                                    ),
-                                    child: ListTile(
-                                      title: Text(
-                                        activity.title,
-                                        style: const TextStyle(
-                                          color: Color(
-                                            0xFF3D405B,
-                                          ), // Schriftfarbe
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        "Lat: ${activity.location?.latitude ?? 'N/A'}, Lon: ${activity.location?.longitude ?? 'N/A'}",
-                                        style: const TextStyle(
-                                          color: Color(
-                                            0xFF3D405B,
-                                          ), // Schriftfarbe
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        // Navigation zum ActivityScreen
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) => ActivityScreen(
-                                                  activity: activity,
-                                                  users:
-                                                      users, // Übergabe der Benutzerliste
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                  return ActivityListCard(
+                                    activity: activity,
+                                    users: users, // Übergabe der Benutzerliste
                                   );
                                 },
                               );

@@ -8,10 +8,10 @@ class MockFirestoreService {
     return [
       AppUser(
         uid: 'user1',
-        name: 'John Doe',
-        email: 'john.doe@example.com',
+        name: 'Enno Mühlbauer',
+        email: 'ennomh@gmail.com',
         profileImageUrl: 'https://example.com/profile1.jpg',
-        bio: 'Outdoor enthusiast and hiker.',
+        bio: 'das ist meine bio lol ',
         friends: ['user2', 'user3'],
         createdAt: Timestamp.now(),
       ),
@@ -46,7 +46,9 @@ class MockFirestoreService {
         category: 'Outdoor',
         ownerId: 'user1', // Erstellt von John Doe
         location: GeoPoint(48.1351, 11.5820), // München
-        startTime: Timestamp.now(),
+        address: 'Hauptstraße 1', // Adresse hinzugefügt
+        date: '20/10/2025', // Datum im Format DD/MM/YYYY
+        time: '12:30', // Uhrzeit im Format HH:mm
         participants: ['user3', 'user2'], // Teilnehmer-UIDs
         imageUrls: ['https://example.com/image1.jpg'],
         createdAt: Timestamp.now(),
@@ -58,7 +60,9 @@ class MockFirestoreService {
         category: 'Social',
         ownerId: 'user2', // Erstellt von Jane Smith
         location: GeoPoint(52.5200, 13.4050), // Berlin
-        startTime: Timestamp.now(),
+        address: 'Hauptstraße 1', // Adresse hinzugefügt
+        date: '21/10/2025', // Datum im Format DD/MM/YYYY
+        time: '15:00', // Uhrzeit im Format HH:mm
         participants: ['user3'], // Teilnehmer-UIDs
         imageUrls: ['https://example.com/image2.jpg'],
         createdAt: Timestamp.now(),
@@ -70,11 +74,22 @@ class MockFirestoreService {
         category: 'Entertainment',
         ownerId: 'user3', // Erstellt von Alice Johnson
         location: GeoPoint(50.9375, 6.9603), // Köln
-        startTime: Timestamp.now(),
+        address: 'Hauptstraße 1', // Adresse hinzugefügt
+        date: '22/10/2025', // Datum im Format DD/MM/YYYY
+        time: '20:00', // Uhrzeit im Format HH:mm
         participants: ['user1', 'user2'], // Teilnehmer-UIDs
         imageUrls: null,
         createdAt: Timestamp.now(),
       ),
     ];
+  }
+
+  /// Gibt einen Mock-Benutzer basierend auf der UID zurück.
+  Future<AppUser?> getUserById(String uid) async {
+    final users = await getUsers();
+    return users.firstWhere(
+      (user) => user.uid == uid,
+      orElse: () => throw Exception('User not found'),
+    );
   }
 }

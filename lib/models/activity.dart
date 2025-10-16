@@ -8,7 +8,9 @@ class Activity {
   final String category;
   final String ownerId;
   final GeoPoint? location;
-  final Timestamp startTime;
+  final String address; // Neues Feld für die Adresse
+  final String date; // Neues Feld für das Datum
+  final String time; // Neues Feld für die Zeit
   final List<String> participants;
   final List<String>? imageUrls;
   final Timestamp createdAt;
@@ -21,7 +23,9 @@ class Activity {
     required this.category,
     required this.ownerId,
     this.location,
-    required this.startTime,
+    required this.address, // Initialisierung des neuen Felds
+    required this.date, // Initialisierung des neuen Felds
+    required this.time, // Initialisierung des neuen Felds
     this.participants = const [],
     this.imageUrls,
     required this.createdAt,
@@ -36,7 +40,9 @@ class Activity {
       category: data['category'] ?? '',
       ownerId: data['ownerId'] ?? '',
       location: data['location'],
-      startTime: data['startTime'] ?? Timestamp.now(),
+      address: data['address'] ?? '', // Adresse aus der Map lesen
+      date: data['date'] ?? '', // Datum aus der Map lesen
+      time: data['time'] ?? '', // Zeit aus der Map lesen
       participants: List<String>.from(data['participants'] ?? []),
       imageUrls:
           data['imageUrls'] != null
@@ -54,7 +60,9 @@ class Activity {
       'category': category,
       'ownerId': ownerId,
       'location': location,
-      'startTime': startTime,
+      'address': address, // Adresse zur Map hinzufügen
+      'date': date, // Datum zur Map hinzufügen
+      'time': time, // Zeit zur Map hinzufügen
       'participants': participants,
       'imageUrls': imageUrls,
       'createdAt': createdAt,
@@ -68,7 +76,9 @@ class Activity {
     String? category,
     String? ownerId,
     GeoPoint? location,
-    Timestamp? startTime,
+    String? address, // Neues Feld für die Kopie
+    String? date, // Neues Feld für die Kopie
+    String? time, // Neues Feld für die Kopie
     List<String>? participants,
     List<String>? imageUrls,
     Timestamp? createdAt,
@@ -80,7 +90,9 @@ class Activity {
       category: category ?? this.category,
       ownerId: ownerId ?? this.ownerId,
       location: location ?? this.location,
-      startTime: startTime ?? this.startTime,
+      address: address ?? this.address, // Adresse kopieren
+      date: date ?? this.date, // Datum kopieren
+      time: time ?? this.time, // Zeit kopieren
       participants: participants ?? this.participants,
       imageUrls: imageUrls ?? this.imageUrls,
       createdAt: createdAt ?? this.createdAt,

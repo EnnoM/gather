@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
+import '../models/user.dart';
+import '../services/mock_firestore_service.dart';
 
 class UserState extends ChangeNotifier {
-  bool _isLoggedIn = false; // Login-Status
-  String? _userId; // ID des eingeloggten Benutzers
+  bool _isLoggedIn = false;
+  AppUser? _currentUser;
 
-  // Getter für den Login-Status
+  final MockFirestoreService _mockFirestoreService = MockFirestoreService();
+
   bool get isLoggedIn => _isLoggedIn;
+  AppUser? get currentUser => _currentUser;
 
-  // Getter für die Benutzer-ID
-  String? get userId => _userId;
-
-  // Methode zum Einloggen
-  void login(String userId) {
-    _isLoggedIn = true;
-    _userId = userId;
-    notifyListeners(); // Benachrichtigt alle Widgets über Änderungen
+  Future<void> login(String uid) async {
+    final user = await _mockFirestoreService.getUserById(uid);
+    if (user != null) {
+      _isLoggedIn = true;
+      _currentUser = user;
+      notifyListeners();
+    }
   }
 
-  // Methode zum Ausloggen
   void logout() {
     _isLoggedIn = false;
-    _userId = null;
-    notifyListeners(); // Benachrichtigt alle Widgets über Änderungen
+    _currentUser = null;
+    notifyListeners();
   }
 }

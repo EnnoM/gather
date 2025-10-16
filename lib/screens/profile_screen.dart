@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../state/user_state.dart';
 import '../widgets/custom_drawer.dart'; // Import des CustomDrawer-Widgets
 import 'feed_screen.dart'; // Import der FeedScreen
 
@@ -8,6 +10,19 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+    final userState = Provider.of<UserState>(context);
+    final currentUser = userState.currentUser;
+
+    if (currentUser == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            'No user is logged in.',
+            style: TextStyle(fontSize: 18, color: Colors.red),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       key: scaffoldKey,
@@ -53,18 +68,22 @@ class ProfileScreen extends StatelessWidget {
               CrossAxisAlignment.center, // Horizontal zentrieren
           children: [
             // Profilbild
-            const CircleAvatar(
+            CircleAvatar(
               radius: 70,
-              backgroundImage: AssetImage(
-                'assets/images/profile_placeholder.png',
-              ), // Beispielbild
+              backgroundImage:
+                  currentUser.profileImageUrl != null
+                      ? NetworkImage(currentUser.profileImageUrl!)
+                      : const AssetImage(
+                            'assets/images/profile_placeholder.png',
+                          )
+                          as ImageProvider,
             ),
             const SizedBox(height: 30),
 
             // Vorname und Nachname
-            const Text(
-              'John Doe',
-              style: TextStyle(
+            Text(
+              currentUser.name,
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF3D405B), // Schriftfarbe
@@ -72,20 +91,21 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Geburtsdatum
-            const Text(
-              '01/01/1990',
-              style: TextStyle(
-                fontSize: 18,
-                color: Color(0xFF3D405B), // Schriftfarbe
+            // Geburtsdatum (falls vorhanden)
+            if (currentUser.bio != null)
+              Text(
+                currentUser.bio!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Color(0xFF3D405B), // Schriftfarbe
+                ),
               ),
-            ),
             const SizedBox(height: 10),
 
             // Mailadresse
-            const Text(
-              'john.doe@example.com',
-              style: TextStyle(
+            Text(
+              currentUser.email,
+              style: const TextStyle(
                 fontSize: 18,
                 color: Color(0xFF3D405B), // Schriftfarbe
               ),
@@ -96,10 +116,16 @@ class ProfileScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Logik für Logout
+                Provider.of<UserState>(
+                  context,
+                  listen: false,
+                ).logout(); // Benutzer ausloggen
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const FeedScreen()),
-                  (route) => false,
+                  MaterialPageRoute(
+                    builder: (context) => const FeedScreen(),
+                  ), // Zurück zum FeedScreen
+                  (route) => false, // Entfernt alle vorherigen Routen
                 );
               },
               style: ElevatedButton.styleFrom(

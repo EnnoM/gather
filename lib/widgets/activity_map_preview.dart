@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:intl/intl.dart'; // Für die Datums- und Zeitformatierung
 import '../models/activity.dart';
 import '../models/user.dart'; // Importiere das AppUser-Modell
 import '../services/mock_firestore_service.dart'; // Importiere den MockFirestoreService
@@ -34,8 +33,12 @@ class ActivityMapPreview extends StatelessWidget {
             center: LatLng(51.1657, 10.4515), // Zentrum: Deutschland
             zoom: 5.0,
             onTap: (_, __) {
-              // Schließt das Popup, wenn man auf die Karte klickt
-              Navigator.of(context).pop();
+              // Keine Aktion ausführen, wenn auf die Karte geklickt wird
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Keine Aktivität an dieser Position.'),
+                ),
+              );
             },
           ),
           children: [
@@ -57,16 +60,6 @@ class ActivityMapPreview extends StatelessWidget {
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  // Formatierung von Datum und Uhrzeit
-                                  final DateTime dateTime =
-                                      activity.startTime.toDate();
-                                  final String formattedTime = DateFormat(
-                                    'HH:mm',
-                                  ).format(dateTime);
-                                  final String formattedDate = DateFormat(
-                                    'dd.MM.yyyy',
-                                  ).format(dateTime);
-
                                   return AlertDialog(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
@@ -103,7 +96,7 @@ class ActivityMapPreview extends StatelessWidget {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          'Time:',
+                                          'Date & Time:',
                                           style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
@@ -111,23 +104,7 @@ class ActivityMapPreview extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          formattedTime,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Color(0xFF3D405B),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Date:',
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF3D405B),
-                                          ),
-                                        ),
-                                        Text(
-                                          formattedDate,
+                                          '${activity.date}, ${activity.time}', // Datum und Zeit kombiniert
                                           style: const TextStyle(
                                             fontSize: 14,
                                             color: Color(0xFF3D405B),
