@@ -7,6 +7,7 @@ import '../widgets/custom_drawer.dart';
 import '../models/user.dart';
 import '../services/mock_firestore_service.dart';
 import '../widgets/activity_list_card.dart';
+import 'add_activity.dart'; // Korrigierter Import
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -69,317 +70,246 @@ class _FeedScreenState extends State<FeedScreen> {
         ],
       ),
       endDrawer: const CustomDrawer(),
-      body: GestureDetector(
-        onTap: () {
-          // Klappt das Menü ein, wenn irgendwo anders geklickt wird
-          if (isExpanded) {
-            setState(() {
-              isExpanded = false;
-            });
-          }
-        },
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                // Menüleiste
-                Container(
-                  height: kToolbarHeight,
-                  margin: const EdgeInsets.fromLTRB(
-                    16,
-                    16,
-                    16,
-                    8,
-                  ), // Gleicher Abstand wie Aktivitäten
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isListView = true;
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color:
-                                  isListView
-                                      ? const Color(0xFF81B29A)
-                                      : Colors.transparent,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(16), // Alle Ecken abrunden
-                              ),
-                            ),
-                            child: const Center(
-                              child: Text('📋', style: TextStyle(fontSize: 24)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isListView = false;
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color:
-                                  !isListView
-                                      ? const Color(0xFF81B29A)
-                                      : Colors.transparent,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(16), // Alle Ecken abrunden
-                              ),
-                            ),
-                            child: const Center(
-                              child: Text('🌍', style: TextStyle(fontSize: 24)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Grüne Bar mit mittigem Trennstrich
-                Container(
-                  height: 40, // Halb so hoch wie ein Listenelement
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16, // Gleicher Abstand wie die Listenelemente
-                    vertical: 8, // Gleicher Abstand oben und unten
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(
-                      0xFF81B29A,
-                    ), // Gleiche Farbe wie die Listenelemente
-                    borderRadius: BorderRadius.circular(
-                      16,
-                    ), // Abgerundete Ecken
-                  ),
-                  child: Row(
-                    children: [
-                      // Linke Hälfte: "X activities nearby"
-                      Expanded(
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              // Menüleiste
+              Container(
+                height: kToolbarHeight,
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isListView = true;
+                          });
+                        },
                         child: Container(
-                          alignment: Alignment.center,
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text:
-                                      '${activities.length} ', // Anzahl der Aktivitäten
-                                  style: const TextStyle(
-                                    color: Color(
-                                      0xFFE07A5F,
-                                    ), // Farbe der Anzahl
-                                    fontWeight: FontWeight.bold, // Fett
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const TextSpan(
-                                  text: 'activities nearby', // Text
-                                  style: TextStyle(
-                                    color: Color(0xFF3D405B), // Schriftfarbe
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
+                          decoration: BoxDecoration(
+                            color:
+                                isListView
+                                    ? const Color(0xFF81B29A)
+                                    : Colors.transparent,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(16),
                             ),
+                          ),
+                          child: const Center(
+                            child: Text('📋', style: TextStyle(fontSize: 24)),
                           ),
                         ),
                       ),
-                      // Trennlinie
-                      Container(
-                        width: 2, // Dicke des Strichs
-                        color: const Color(0xFF3D405B), // Farbe des Strichs
-                      ),
-                      // Rechte Hälfte: Filter-Symbol
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            // Zukünftige Logik für Filtereinstellungen
-                            print("Filter icon tapped");
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: const Icon(
-                              Icons.filter_alt, // Filter-Symbol
-                              color: Color(0xFF3D405B), // Symbolfarbe
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Hauptinhalt
-                Expanded(
-                  child:
-                      isListView
-                          ? FutureBuilder<List<AppUser>>(
-                            future: usersFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-
-                              if (snapshot.hasError) {
-                                return const Center(
-                                  child: Text('Fehler beim Laden der Benutzer'),
-                                );
-                              }
-
-                              final users = snapshot.data ?? [];
-
-                              return ListView.builder(
-                                itemCount: activities.length,
-                                itemBuilder: (context, index) {
-                                  final activity = activities[index];
-                                  return ActivityListCard(
-                                    activity: activity,
-                                    users: users, // Übergabe der Benutzerliste
-                                  );
-                                },
-                              );
-                            },
-                          )
-                          : Container(
-                            margin: const EdgeInsets.fromLTRB(
-                              16,
-                              8, // Gleicher Abstand wie Aktivitäten oben
-                              16,
-                              16, // Abstand unten
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white, // Hintergrundfarbe der Karte
-                              borderRadius: BorderRadius.circular(
-                                16,
-                              ), // Alle Ecken abrunden
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4), // Schatten
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                16,
-                              ), // Ecken der Karte abrunden
-                              child: ActivityMapPreview(activities: activities),
-                            ),
-                          ),
-                ),
-              ],
-            ),
-            // Button unten links, der sich bei Klick über den gesamten Bildschirm erweitert
-            Positioned(
-              bottom: 16,
-              left: isExpanded ? 16 : 16, // Immer unten links
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isExpanded = !isExpanded; // Menü ein-/ausklappen
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(
-                    milliseconds: 300,
-                  ), // Animation für Übergang
-                  curve: Curves.easeInOut, // Sanfte Animation
-                  width:
-                      isExpanded
-                          ? MediaQuery.of(context).size.width -
-                              32 // Über gesamte Breite
-                          : 80, // Eingeklappt
-                  height: 80, // Höhe bleibt gleich
-                  decoration: BoxDecoration(
-                    color: Colors.transparent, // Durchsichtig
-                    border: Border.all(
-                      color: const Color(0xFFE07A5F), // Umrandung in Rot
-                      width: 2,
                     ),
-                    borderRadius: BorderRadius.circular(
-                      40,
-                    ), // Ecken bleiben rund
-                  ),
-                  child:
-                      isExpanded
-                          ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isListView = false;
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color:
+                                !isListView
+                                    ? const Color(0xFF81B29A)
+                                    : Colors.transparent,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(16),
+                            ),
+                          ),
+                          child: const Center(
+                            child: Text('🌍', style: TextStyle(fontSize: 24)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Grüne Bar mit mittigem Trennstrich
+              Container(
+                height: 40,
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF81B29A),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: RichText(
+                          text: TextSpan(
                             children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Logik für "Add"
-                                    print("Add clicked");
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    decoration: const BoxDecoration(
-                                      border: Border(
-                                        right: BorderSide(
-                                          color: Color(
-                                            0xFFE07A5F,
-                                          ), // Trennlinie in Rot
-                                          width: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      "Add",
-                                      style: TextStyle(
-                                        color: Color(
-                                          0xFFE07A5F,
-                                        ), // Schriftfarbe in Rot
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
+                              TextSpan(
+                                text: '${activities.length} ',
+                                style: const TextStyle(
+                                  color: Color(0xFFE07A5F),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
                                 ),
                               ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Logik für "MyActivities"
-                                    print("MyActivities clicked");
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "MyActivities",
-                                      style: TextStyle(
-                                        color: Color(
-                                          0xFFE07A5F,
-                                        ), // Schriftfarbe in Rot
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
+                              const TextSpan(
+                                text: 'activities nearby',
+                                style: TextStyle(
+                                  color: Color(0xFF3D405B),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
-                          )
-                          : const Center(
-                            child: Text(
-                              "Activity",
-                              style: TextStyle(
-                                color: Color(0xFFE07A5F), // Schriftfarbe in Rot
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                           ),
+                        ),
+                      ),
+                    ),
+                    Container(width: 2, color: const Color(0xFF3D405B)),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          print("Filter icon tapped");
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: const Icon(
+                            Icons.filter_alt,
+                            color: Color(0xFF3D405B),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              // Hauptinhalt
+              Expanded(
+                child:
+                    isListView
+                        ? FutureBuilder<List<AppUser>>(
+                          future: usersFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return const Center(
+                                child: Text('Fehler beim Laden der Benutzer'),
+                              );
+                            }
+
+                            final users = snapshot.data ?? [];
+
+                            return ListView.builder(
+                              itemCount: activities.length,
+                              itemBuilder: (context, index) {
+                                final activity = activities[index];
+                                return ActivityListCard(
+                                  activity: activity,
+                                  users: users,
+                                );
+                              },
+                            );
+                          },
+                        )
+                        : Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: ActivityMapPreview(activities: activities),
+                          ),
+                        ),
+              ),
+            ],
+          ),
+          // Activity-Bar immer unten
+          Positioned(
+            bottom:
+                MediaQuery.of(context).size.height *
+                0.015, // Leicht nach oben verschoben (2-3%)
+            left: 16, // Gleicher Abstand wie vorher
+            right: 16, // Gleicher Abstand wie vorher
+            child: Container(
+              height: 40, // 30% reduzierte Höhe (ursprünglich 80)
+              decoration: BoxDecoration(
+                color: const Color(0xFF3D405B), // Hintergrundfarbe
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFFE07A5F), // Randfarbe
+                  width: 2,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddActivityScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            right: BorderSide(
+                              color: Color(0xFFE07A5F), // Trennlinie in Rot
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          "Add Activity",
+                          style: TextStyle(
+                            color: Color(0xFFE07A5F), // Schriftfarbe
+                            fontWeight: FontWeight.bold, // Fett
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        print("MyActivities clicked");
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: const Text(
+                          "Manage Activities",
+                          style: TextStyle(
+                            color: Color(0xFFE07A5F), // Schriftfarbe
+                            fontWeight: FontWeight.bold, // Fett
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF3D405B), // Hintergrundfarbe
     );
