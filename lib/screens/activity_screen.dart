@@ -143,7 +143,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 const Text("🏷️", style: TextStyle(fontSize: 20)),
                 const SizedBox(width: 8),
                 Text(
-                  '${widget.activity.category}',
+                  widget.activity.category,
                   style: const TextStyle(fontSize: 14, color: Colors.black54),
                 ),
               ],

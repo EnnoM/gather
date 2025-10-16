@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/activity_state.dart';
+import '../state/user_state.dart';
 import '../widgets/activity_map_preview.dart';
 import '../widgets/custom_drawer.dart';
 import 'activity_screen.dart';
-import '../models/activity.dart';
 import '../models/user.dart';
 import '../services/mock_firestore_service.dart';
 
@@ -34,7 +34,15 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userState = Provider.of<UserState>(context);
     final activities = Provider.of<ActivityState>(context).activities;
+
+    if (!userState.isLoggedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      return const SizedBox.shrink(); // Leerer Platzhalter
+    }
 
     return Scaffold(
       key: _scaffoldKey,
