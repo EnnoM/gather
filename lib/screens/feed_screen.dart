@@ -51,7 +51,7 @@ class _FeedScreenState extends State<FeedScreen> {
         title: const Text(
           '2 G A T H E R',
           style: TextStyle(
-            color: Color(0xFF81B29A),
+            color: Color(0xFFF4F1DE),
             fontFamily: 'Barlow',
             fontWeight: FontWeight.bold,
           ),
@@ -62,7 +62,7 @@ class _FeedScreenState extends State<FeedScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.menu),
-            color: Color(0xFF81B29A),
+            color: Color(0xFFF4F1DE),
             onPressed: () {
               _scaffoldKey.currentState?.openEndDrawer();
             },
@@ -91,7 +91,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           decoration: BoxDecoration(
                             color:
                                 isListView
-                                    ? const Color(0xFF81B29A)
+                                    ? const Color(0xFFF4F1DE)
                                     : Colors.transparent,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(16),
@@ -114,7 +114,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           decoration: BoxDecoration(
                             color:
                                 !isListView
-                                    ? const Color(0xFF81B29A)
+                                    ? const Color(0xFFF4F1DE)
                                     : Colors.transparent,
                             borderRadius: const BorderRadius.all(
                               Radius.circular(16),
@@ -134,7 +134,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 height: 40,
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF81B29A),
+                  color: const Color(0xFFF4F1DE),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -252,7 +252,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 color: const Color(0xFF3D405B), // Hintergrundfarbe
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFFE07A5F), // Randfarbe
+                  color: const Color(0xFF81B29A), // Randfarbe
                   width: 2,
                 ),
               ),
@@ -273,7 +273,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         decoration: const BoxDecoration(
                           border: Border(
                             right: BorderSide(
-                              color: Color(0xFFE07A5F), // Trennlinie in Rot
+                              color: Color(0xFF81B29A), // Trennlinie in Rot
                               width: 1,
                             ),
                           ),
@@ -281,7 +281,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         child: const Text(
                           "Add Activity",
                           style: TextStyle(
-                            color: Color(0xFFE07A5F), // Schriftfarbe
+                            color: Color(0xFF81B29A), // Schriftfarbe
                             fontWeight: FontWeight.bold, // Fett
                           ),
                         ),
@@ -298,7 +298,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         child: const Text(
                           "Manage Activities",
                           style: TextStyle(
-                            color: Color(0xFFE07A5F), // Schriftfarbe
+                            color: Color(0xFF81B29A), // Schriftfarbe
                             fontWeight: FontWeight.bold, // Fett
                           ),
                         ),

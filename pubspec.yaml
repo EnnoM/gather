@@ -41,7 +41,7 @@ dependencies:
   intl: ^0.18.0
   google_maps_flutter: ^2.13.1
   geocoding: ^2.0.5
-  google_places_flutter: ^0.3.0
+  google_places_flutter: ^2.1.1
 
 dev_dependencies:
   flutter_test:

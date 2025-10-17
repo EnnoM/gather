@@ -6,7 +6,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AddActivityMap extends StatefulWidget {
-  final void Function(LatLng location, String address) onLocationSelected;
+  final void Function(LatLng location, Map<String, dynamic> address)
+  onLocationSelected;
 
   const AddActivityMap({required this.onLocationSelected, Key? key})
     : super(key: key);
@@ -20,6 +21,8 @@ class _AddActivityMapState extends State<AddActivityMap> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _searchResults = [];
   Timer? _debounce; // Timer für Debouncing
+  Timer?
+  _reverseGeocodeDebounce; // Timer for debouncing reverse geocoding requests
   Map<String, dynamic> _selectedAddress = {}; // Für die Adresse
 
   @override
@@ -48,9 +51,7 @@ class _AddActivityMapState extends State<AddActivityMap> {
     try {
       final url =
           'https://nominatim.openstreetmap.org/search?q=$query&format=json&addressdetails=1&limit=5';
-      final headers = {
-        'User-Agent': 'YourAppName/1.0 (your.email@example.com)',
-      };
+      final headers = {'User-Agent': 'KeinNameBisJetzt/1.0 (ennomh@gmail.com)'};
       final response = await http.get(Uri.parse(url), headers: headers);
 
       if (response.statusCode == 200) {
@@ -107,6 +108,44 @@ class _AddActivityMapState extends State<AddActivityMap> {
     }
   }
 
+  Future<void> _fetchAddressFromCoordinates(LatLng location) async {
+    try {
+      final url =
+          'https://nominatim.openstreetmap.org/reverse?lat=${location.latitude}&lon=${location.longitude}&format=json&addressdetails=1';
+      final headers = {'User-Agent': 'KeinNameBisJetzt/1.0 (ennomh@gmail.com)'};
+      final response = await http.get(Uri.parse(url), headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _selectedAddress = {
+            'road': data['address']['road'] ?? 'Unbekannt',
+            'house_number': data['address']['house_number'] ?? '',
+            'postcode': data['address']['postcode'] ?? 'Unbekannt',
+            'city': data['address']['city'] ?? 'Unbekannt',
+          };
+        });
+      } else {
+        print('Failed to fetch address. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching address: $e');
+    }
+  }
+
+  void _onMapTap(LatLng point) {
+    // Debounce the reverse geocoding requests
+    if (_reverseGeocodeDebounce?.isActive ?? false)
+      _reverseGeocodeDebounce!.cancel();
+    _reverseGeocodeDebounce = Timer(const Duration(seconds: 1), () {
+      _fetchAddressFromCoordinates(point);
+    });
+
+    setState(() {
+      _selectedLocation = point;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -131,11 +170,7 @@ class _AddActivityMapState extends State<AddActivityMap> {
               options: MapOptions(
                 center: LatLng(48.1351, 11.5820), // Beispiel: München
                 zoom: 12,
-                onTap: (tapPosition, point) {
-                  setState(() {
-                    _selectedLocation = point;
-                  });
-                },
+                onTap: (tapPosition, point) => _onMapTap(point),
               ),
               children: [
                 TileLayer(
@@ -246,6 +281,9 @@ class _AddActivityMapState extends State<AddActivityMap> {
                                 _selectedAddress = {
                                   'road':
                                       result['address']['road'] ?? 'Unbekannt',
+                                  'house_number':
+                                      result['address']['house_number'] ??
+                                      '', // Hausnummer
                                   'postcode':
                                       result['address']['postcode'] ??
                                       'Unbekannt',
@@ -272,11 +310,15 @@ class _AddActivityMapState extends State<AddActivityMap> {
                 left: MediaQuery.of(context).size.width * 0.25,
                 right: MediaQuery.of(context).size.width * 0.25,
                 child: Container(
-                  height: 150, // 3-fache Höhe des Buttons
+                  height: 120, // Höhe um 20% reduziert (150 -> 120)
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF81B29A), // Hintergrundfarbe
+                    color: const Color(0xFFF4F1DE), // Hintergrundfarbe
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF3D405B), // Umrandungsfarbe
+                      width: 2.0,
+                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -284,10 +326,8 @@ class _AddActivityMapState extends State<AddActivityMap> {
                       Text(
                         'Straße: ${_selectedAddress['road'] ?? 'Unbekannt'}',
                         style: const TextStyle(
-                          color: Color(
-                            0xFF3D405B,
-                          ), // Schriftfarbe wie im roten Kästchen
-                          fontSize: 16, // Schriftgröße wie im roten Kästchen
+                          color: Color(0xFF3D405B), // Schriftfarbe
+                          fontSize: 16, // Schriftgröße
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Barlow',
                         ),
@@ -296,10 +336,8 @@ class _AddActivityMapState extends State<AddActivityMap> {
                       Text(
                         'PLZ: ${_selectedAddress['postcode'] ?? 'Unbekannt'}',
                         style: const TextStyle(
-                          color: Color(
-                            0xFF3D405B,
-                          ), // Schriftfarbe wie im roten Kästchen
-                          fontSize: 16, // Schriftgröße wie im roten Kästchen
+                          color: Color(0xFF3D405B), // Schriftfarbe
+                          fontSize: 16, // Schriftgröße
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Barlow',
                         ),
@@ -308,10 +346,8 @@ class _AddActivityMapState extends State<AddActivityMap> {
                       Text(
                         'Stadt: ${_selectedAddress['city'] ?? 'Unbekannt'}',
                         style: const TextStyle(
-                          color: Color(
-                            0xFF3D405B,
-                          ), // Schriftfarbe wie im roten Kästchen
-                          fontSize: 16, // Schriftgröße wie im roten Kästchen
+                          color: Color(0xFF3D405B), // Schriftfarbe
+                          fontSize: 16, // Schriftgröße
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Barlow',
                         ),
@@ -328,14 +364,28 @@ class _AddActivityMapState extends State<AddActivityMap> {
                 right: MediaQuery.of(context).size.width * 0.25,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE07A5F),
+                    backgroundColor: const Color(0xFF81B29A),
                     foregroundColor: const Color(0xFF3D405B),
                     textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    side: const BorderSide(
+                      color: Color(0xFF3D405B), // Umrandungsfarbe hinzugefügt
+                      width: 2.0,
+                    ),
                   ),
                   onPressed: () {
-                    final address =
-                        'Lat: ${_selectedLocation!.latitude}, Lng: ${_selectedLocation!.longitude}';
-                    widget.onLocationSelected(_selectedLocation!, address);
+                    final addressDetails = {
+                      'road': _selectedAddress['road'] ?? 'Unbekannt',
+                      'house_number':
+                          _selectedAddress['house_number'] ?? '', // Hausnummer
+                      'postcode': _selectedAddress['postcode'] ?? 'Unbekannt',
+                      'city': _selectedAddress['city'] ?? 'Unbekannt',
+                      'latitude': _selectedLocation!.latitude,
+                      'longitude': _selectedLocation!.longitude,
+                    };
+                    widget.onLocationSelected(
+                      _selectedLocation!,
+                      addressDetails,
+                    );
                     Navigator.pop(context);
                   },
                   child: const Text('Select'),

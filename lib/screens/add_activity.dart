@@ -21,7 +21,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
     'time': TextEditingController(),
   };
 
-  String category = 'Sport'; // Default category
+  String? category; // Startet mit null
   LatLng? location;
 
   @override
@@ -40,13 +40,13 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
         title: const Text(
           'C R E A T E  A C T I V I T Y',
           style: TextStyle(
-            color: Color(0xFF81B29A),
+            color: Color(0xFFF4F1DE),
             fontFamily: 'Barlow',
             fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: const Color(0xFF3D405B),
-        iconTheme: const IconThemeData(color: Color(0xFF81B29A)),
+        iconTheme: const IconThemeData(color: Color(0xFFF4F1DE)),
       ),
       endDrawer: const CustomDrawer(),
       backgroundColor: const Color(0xFF3D405B),
@@ -81,8 +81,12 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                 const SizedBox(height: 16),
                 _buildDropdownField(
                   label: 'Category',
-                  value: category,
-                  onChanged: (value) => setState(() => category = value!),
+                  value: category, // Startet mit null
+                  onChanged: (newValue) {
+                    setState(() {
+                      category = newValue; // Speichert die Auswahl
+                    });
+                  },
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
@@ -97,11 +101,18 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                             (context) => AddActivityMap(
                               onLocationSelected: (
                                 LatLng selectedLocation,
-                                String address,
+                                Map<String, dynamic> addressDetails,
                               ) {
                                 setState(() {
                                   location = selectedLocation;
-                                  _controllers['address']!.text = address;
+
+                                  // Formatiere die Adresse
+                                  final formattedAddress =
+                                      '${addressDetails['road']} ${addressDetails['house_number']}, ${addressDetails['postcode']}, ${addressDetails['city']}';
+
+                                  // Setze die formatierte Adresse in das Textfeld
+                                  _controllers['address']!.text =
+                                      formattedAddress;
                                 });
                               },
                             ),
@@ -153,8 +164,9 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF81B29A),
-                      foregroundColor: const Color(0xFF3D405B),
+                      foregroundColor: const Color(0xFFF4F1DE),
                       textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      // Entferne die `side`-Eigenschaft, um den Rand zu entfernen
                     ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
@@ -164,7 +176,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                         );
                       }
                     },
-                    child: const Text('Create Activity'),
+                    child: const Text('Create'),
                   ),
                 ),
               ],
@@ -177,10 +189,10 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
 
   InputDecoration _inputDecoration(String label, bool isValid) {
     return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Color(0xFF3D405B)),
+      hintText: label, // Beschriftung bleibt innerhalb des Feldes
+      hintStyle: const TextStyle(color: Color(0xFF3D405B)),
       filled: true,
-      fillColor: const Color(0xFFF4F1DE),
+      fillColor: const Color(0xFFF4F1DE), // Hintergrundfarbe geändert
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(
           color: isValid ? const Color(0xFF81B29A) : const Color(0xFFE07A5F),
@@ -222,26 +234,68 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
 
   Widget _buildDropdownField({
     required String label,
-    required String value,
+    required String? value, // Wert kann null sein
     required ValueChanged<String?> onChanged,
   }) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: _inputDecoration(label, value.isNotEmpty),
-      style: const TextStyle(color: Color(0xFF3D405B)),
-      items:
-          [
-                'Sport',
-                'Coffee',
-                'Just Meet',
-                'Walk',
-                'Study',
-                'Cook',
-                'Board Games',
-              ]
-              .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-              .toList(),
-      onChanged: onChanged,
+    return Container(
+      width: double.infinity, // Nimmt die volle Breite ein
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F1DE), // Hintergrundfarbe geändert
+        borderRadius: BorderRadius.circular(8), // Abgerundete Ecken
+        border: Border.all(
+          color:
+              value == null
+                  ? const Color(0xFFE07A5F) // Rot, wenn leer
+                  : const Color(0xFF81B29A), // Grün, wenn ausgewählt
+          width: 2.0,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12), // Innenabstand
+      child: DropdownButtonFormField<String>(
+        value: value, // Startet leer, wenn value null ist
+        hint: Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF3D405B),
+            fontSize: 16, // Schriftgröße angepasst
+          ),
+        ), // Zeigt "Category" an, wenn nichts ausgewählt ist
+        decoration: const InputDecoration(
+          border: InputBorder.none, // Entfernt die Standardumrandung
+        ),
+        style: const TextStyle(
+          color: Color(0xFF3D405B),
+          fontSize: 16, // Schriftgröße angepasst
+        ),
+        dropdownColor: const Color(
+          0xFFF4F1DE,
+        ), // Hintergrundfarbe des Dropdowns
+        menuMaxHeight: 300, // Maximale Höhe des Dropdown-Menüs
+        items:
+            [
+                  'Sport',
+                  'Coffee',
+                  'Just Meet',
+                  'Walk',
+                  'Study',
+                  'Cook',
+                  'Board Games',
+                ]
+                .map(
+                  (category) => DropdownMenuItem(
+                    value: category,
+                    child: Text(
+                      category,
+                      style: const TextStyle(
+                        fontSize: 16, // Schriftgröße angepasst
+                        fontWeight: FontWeight.normal, // Optional: Konsistenz
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+        onChanged: onChanged,
+      ),
     );
   }
 }

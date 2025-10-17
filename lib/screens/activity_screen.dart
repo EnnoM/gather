@@ -139,7 +139,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 const Text("📍", style: TextStyle(fontSize: 20)),
                 const SizedBox(width: 8),
                 Text(
-                  widget.activity.address,
+                  widget.activity.road,
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
                 ),
               ],

@@ -9,10 +9,10 @@ class ActivityListCard extends StatelessWidget {
   final List<AppUser> users;
 
   const ActivityListCard({
-    Key? key,
+    super.key,
     required this.activity,
     required this.users,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +37,14 @@ class ActivityListCard extends StatelessWidget {
         vertical: 8, // Gleicher Abstand oben und unten
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF81B29A),
+        color: const Color(0xFFF4F1DE),
         borderRadius: BorderRadius.circular(16), // Alle Ecken abrunden
       ),
       child: ListTile(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Obere Zeile bleibt gleich
             Row(
               children: [
                 // Titel der Veranstaltung
@@ -88,44 +89,37 @@ class ActivityListCard extends StatelessWidget {
               ],
             ),
             const SizedBox(
-              height: 4,
+              height: 8,
             ), // Abstand zwischen erster und zweiter Zeile
+            // Bereich für die 4 Elemente (2 Hälften)
             Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween, // Gleichmäßige Verteilung
               children: [
-                // Datum und Zeit
+                // Linke Hälfte: Datum und Zeit
                 Expanded(
-                  child: Text(
-                    '${activity.date}, ${activity.time}', // Datum und Zeit kombiniert
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF3D405B),
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildTableCell('📅', '${activity.date}'), // Datum
+                      const SizedBox(height: 8), // Abstand zwischen den Zeilen
+                      _buildTableCell('⏰', '${activity.time}'), // Zeit
+                    ],
                   ),
                 ),
-                // Adresse
+                // Rechte Hälfte: Ort und Kategorie
                 Expanded(
-                  child: Text(
-                    activity.address,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF3D405B),
-                    ),
-                    overflow: TextOverflow.ellipsis, // Text abschneiden
-                  ),
-                ),
-                // Kategorie
-                Expanded(
-                  child: Text(
-                    activity.category,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF3D405B),
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildTableCell(
+                        '📍',
+                        '${activity.road} ${activity.houseNumber}', // Straße, Hausnummer, PLZ
+                      ),
+                      const SizedBox(height: 8), // Abstand zwischen den Zeilen
+                      _buildTableCell(
+                        '🏷️',
+                        '${activity.category}',
+                      ), // Kategorie
+                    ],
                   ),
                 ),
               ],
@@ -146,6 +140,28 @@ class ActivityListCard extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  /// Hilfsfunktion zum Erstellen einer Tabellenzelle mit Emoji und Text.
+  Widget _buildTableCell(String emoji, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Text und Emoji ausrichten
+      children: [
+        Text(
+          emoji,
+          style: const TextStyle(fontSize: 16), // Emoji-Stil
+        ),
+        const SizedBox(width: 8), // Abstand zwischen Emoji und Text
+        Flexible(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF3D405B)),
+            overflow: TextOverflow.ellipsis, // Text abschneiden
+            textAlign: TextAlign.left, // Links ausrichten
+          ),
+        ),
+      ],
     );
   }
 }

@@ -46,7 +46,10 @@ class MockFirestoreService {
         category: 'Outdoor',
         ownerId: 'user1', // Erstellt von John Doe
         location: GeoPoint(48.1351, 11.5820), // München
-        address: 'Hauptstraße 1', // Adresse hinzugefügt
+        road: 'Hauptstraße', // Straße
+        houseNumber: '1', // Hausnummer
+        postcode: '80331', // Postleitzahl
+        city: 'München', // Stadt
         date: '20/10/2025', // Datum im Format DD/MM/YYYY
         time: '12:30', // Uhrzeit im Format HH:mm
         participants: ['user3', 'user2'], // Teilnehmer-UIDs
@@ -60,7 +63,10 @@ class MockFirestoreService {
         category: 'Social',
         ownerId: 'user2', // Erstellt von Jane Smith
         location: GeoPoint(52.5200, 13.4050), // Berlin
-        address: 'Hauptstraße 1', // Adresse hinzugefügt
+        road: 'Alexanderplatz', // Straße
+        houseNumber: '5', // Hausnummer
+        postcode: '10178', // Postleitzahl
+        city: 'Berlin', // Stadt
         date: '21/10/2025', // Datum im Format DD/MM/YYYY
         time: '15:00', // Uhrzeit im Format HH:mm
         participants: ['user3'], // Teilnehmer-UIDs
@@ -74,7 +80,10 @@ class MockFirestoreService {
         category: 'Entertainment',
         ownerId: 'user3', // Erstellt von Alice Johnson
         location: GeoPoint(50.9375, 6.9603), // Köln
-        address: 'Hauptstraße 1', // Adresse hinzugefügt
+        road: 'Domstraße', // Straße
+        houseNumber: '10', // Hausnummer
+        postcode: '50667', // Postleitzahl
+        city: 'Köln', // Stadt
         date: '22/10/2025', // Datum im Format DD/MM/YYYY
         time: '20:00', // Uhrzeit im Format HH:mm
         participants: ['user1', 'user2'], // Teilnehmer-UIDs
